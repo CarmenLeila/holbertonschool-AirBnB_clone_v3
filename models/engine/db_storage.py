@@ -79,9 +79,9 @@ class DBStorage:
         """Retrieve object"""
         if cls is None or id is None:
             return None
-        key = cls + "." + id
-        return self.__session.query(classes[cls]).get(key)
+        key = cls.__name__ + "." + id
+        return self.all(cls.__name__).get(key)
 
     def count(self, cls=None):
         """Count the number of objects in a storage"""
-        return len(self.all(cls))
+        return len(self.all(cls.__name__))
