@@ -10,7 +10,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
-CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
+cors = CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
 
 
 @app.errorhandler(404)
@@ -20,7 +20,7 @@ def not_found(error):
 
 
 @app.teardown_appcontext
-def remove_session(exception):
+def remove_session(self):
     """calls storage.close()"""
     storage.close()
 
