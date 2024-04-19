@@ -18,3 +18,16 @@ from models.user import User
 def status():
     """route that returns a JSON"""
     return jsonify({'status': 'OK'})
+
+@app_views.route('/stats', methods=['GET'])
+def stats():
+    """Retrieves the number of each objects by type"""
+    count_dict = {
+        "amenities": storage.count(Amenity),
+        "cities": storage.count(City),
+        "places": storage.count(Place),
+        "reviews": storage.count(Review),
+        "states": storage.count(State),
+        "users": storage.count(User)
+    }
+    return jsonify(count_dict)
