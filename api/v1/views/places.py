@@ -12,7 +12,6 @@ from models.user import User
 # GET all places from a city
 # ============================================================================
 
-
 @app_views.route('/cities/<city_id>/places',
                  methods=["GET"], strict_slashes=False)
 def all_places(city_id):
@@ -29,7 +28,6 @@ def all_places(city_id):
 # GET a place
 # ============================================================================
 
-
 @app_views.route('/places/<place_id>',
                  methods=["GET"], strict_slashes=False)
 def place_object(place_id):
@@ -39,9 +37,9 @@ def place_object(place_id):
         abort(404)
     return jsonify(place.to_dict())
 
+
 # DELETE a place
 # ============================================================================
-
 
 @app_views.route('/places/<place_id>',
                  methods=["DELETE"], strict_slashes=False)
@@ -57,7 +55,6 @@ def delete_place(place_id):
 
 # CREATE a place
 # ============================================================================
-
 
 @app_views.route('cities/<city_id>/places', methods=["POST"],
                  strict_slashes=False)
@@ -80,9 +77,9 @@ def create_place(city_id):
     place.save()
     return jsonify(place.to_dict()), 201
 
+
 # UPDATE a place
 # ============================================================================
-
 
 @app_views.route('/places/<place_id>', methods=["PUT"],
                  strict_slashes=False)
