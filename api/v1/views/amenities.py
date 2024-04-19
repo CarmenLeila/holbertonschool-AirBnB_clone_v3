@@ -5,7 +5,7 @@
 from models.amenity import Amenity
 from api.v1.views import app_views
 from models import storage
-from flask import jsonify, abort, request, make_response
+from flask import jsonify, abort, request
 
 
 # GET all amenities
@@ -47,7 +47,7 @@ def delete_amenity(amenity_id):
         abort(404)
     storage.delete(amenity)
     storage.save()
-    return make_response(jsonify({}), 200)
+    return jsonify({}), 200
 
 
 # CREATE an amenity
@@ -65,7 +65,7 @@ def create_amenity():
     new_obj = Amenity(name=new_amenity['name'])
     storage.new(new_obj)
     storage.save()
-    return make_response(new_obj.to_dict(), 201)
+    return new_obj.to_dict(), 201
 
 
 # UPDATE an amenity
@@ -86,4 +86,4 @@ def update_amenity(amenity_id):
         if key not in ignore:
             setattr(old, key, value)
     storage.save()
-    return make_response(jsonify(old.to_dict()), 200)
+    return jsonify(old.to_dict()), 200
