@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 """It’s time to start our API"""
 
-from flask import jsonify, abort, request, make_response
+
+from flask import jsonify, abort, request
 from api.v1.views import app_views
 from models import storage
 from models.place import Place
