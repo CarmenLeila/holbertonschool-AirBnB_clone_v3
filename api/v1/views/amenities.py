@@ -5,7 +5,7 @@
 from models.amenity import Amenity
 from api.v1.views import app_views
 from models import storage
-from flask import jsonify, abort, request
+from flask import jsonify, abort, request, make_response
 
 # GET all amenities
 # ============================================================================
@@ -47,7 +47,7 @@ def delete_amenity(amenity_id):
         abort(404)
     storage.delete(amenity)
     storage.save()
-    return jsonify({}), 200
+    return make_response(jsonify({}), 200)
 
 
 # CREATE an amenity
@@ -57,14 +57,15 @@ def delete_amenity(amenity_id):
                  strict_slashes=False)
 def create_amenity():
     """create an amenity object"""
-    request_data = request.get_json()
-    if request_data is None:
-        abort(400, 'Not a JSON')
-    if 'name' not in request_data:
-        abort(400, 'Missing name')
-    new_amenity = Amenity(**request_data)
-    new_amenity.save()
-    return jsonify(new_amenity.to_dict()), 201
+    new_amenity = request.get_json(silent=True)
+    if not new_amenity:
+        return abort(400, {"Not a JSON"})
+    if "name" not in new_amenity.keys():
+        return abort(400, {"Missing name"})
+    new_obj = Amenity(name=new_amenity['name'])
+    storage.new(new_obj)
+    storage.save()
+    return make_response(new_obj.to_dict(), 201)
 
 
 # UPDATE an amenity
@@ -73,15 +74,16 @@ def create_amenity():
 @app_views.route('/amenities/<amenity_id>', methods=["PUT"],
                  strict_slashes=False)
 def update_amenity(amenity_id):
-    """update an amenity object"""
-    amenity_update = storage.get(Amenity, amenity_id)
-    if not amenity_update:
-        abort(404)
-    request_data = request.get_json()
-    if not request_data:
-        abort(400, 'Not a JSON')
-    for key, value in request_data.items():
-        if key not in ['id', 'created_at', 'updated_at']:
-            setattr(amenity_update, key, value)
-    amenity_update.save()
-    return jsonify(amenity_update.to_dict()), 200
+    """update amenity"""
+    new = request.get_json(silent=True)
+    if not new:
+        return abort(400, {"Not a JSON"})
+    old = storage.get(Amenity, amenity_id)
+    if not old:
+        return abort(404)
+    ignore = ['id', 'created_at', 'updated_at']
+    for key, value in new.items():
+        if key not in ignore:
+            setattr(old, key, value)
+    storage.save()
+    return make_response(jsonify(old.to_dict()), 200)
