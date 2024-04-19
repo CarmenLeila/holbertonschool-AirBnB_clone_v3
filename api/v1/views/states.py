@@ -1,34 +1,30 @@
 #!/usr/bin/python3
-"""This module contains the index view for the API"""
+"""states for API routes v1"""
 
-
-from models.state import State
+from flask import jsonify, abort, request
 from api.v1.views import app_views
 from models import storage
-from flask import jsonify, abort, request
+from models.state import State
 
 
 # GET all states
 # ============================================================================
 
-@app_views.route('/api/v1/states', methods=["GET"], strict_slashes=False)
-def all_states():
-    """gets the list of all states"""
-    state_list = []
-    for state in storage.all(State).values():
-        state_list.append(state.to_dict())
-    return jsonify(state_list)
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
+def get_all_states():
+    """get all states"""
+    states = storage.all(State).values()
+    return jsonify([state.to_dict() for state in states])
 
 
-# GET one state
+# GET 1 state
 # ============================================================================
 
-@app_views.route('/api/v1/states/<state_id>',
-                 methods=["GET"], strict_slashes=False)
-def state_object(state_id):
-    """gets a state object"""
+@app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
+def get_state(state_id):
+    """get state by id"""
     state = storage.get(State, state_id)
-    if state is None:
+    if not state:
         abort(404)
     return jsonify(state.to_dict())
 
@@ -36,13 +32,14 @@ def state_object(state_id):
 # DELETE a state
 # ============================================================================
 
-@app_views.route('/api/v1/states/<state_id>',
-                 methods=["DELETE"], strict_slashes=False)
+@app_views.route('/states/<state_id>',
+                 methods=['DELETE'], strict_slashes=False)
 def delete_state(state_id):
-    """deletes a state object"""
+    """delete state by id"""
     state = storage.get(State, state_id)
-    if state is None:
+    if not state:
         abort(404)
+
     storage.delete(state)
     storage.save()
     return jsonify({}), 200
@@ -51,16 +48,18 @@ def delete_state(state_id):
 # CREATE a state
 # ============================================================================
 
-@app_views.route('/api/v1/states', methods=["POST"],
-                 strict_slashes=False)
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
-    """creates a new state"""
-    request_data = request.get_json()
-    if not request_data:
+    """create new state"""
+    data = request.get_json()
+
+    if not data:
         abort(400, 'Not a JSON')
-    if 'name' not in request_data:
+
+    if 'name' not in data:
         abort(400, 'Missing name')
-    state = State(**request_data)
+
+    state = State(**data)
     state.save()
     return jsonify(state.to_dict()), 201
 
@@ -68,19 +67,23 @@ def create_state():
 # UPDATE a state
 # ============================================================================
 
-@app_views.route('/api/v1/states/<state_id>', methods=["PUT"],
-                 strict_slashes=False)
+@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def update_state(state_id):
-    """update a state object"""
-    state_update = storage.get(State, state_id)
-    if not state_update:
+    """updtae state by id"""
+    state = storage.get(State, state_id)
+    if not state:
         abort(404)
-    request_data = request.get_json()
-    if not request_data:
+
+    data = request.get_json()
+    if not data:
         abort(400, 'Not a JSON')
 
-    for key, value in request_data.items():
-        if key not in ['id', 'created_at', 'updated_at']:
-            setattr(state_update, key, value)
-    state_update.save()
-    return jsonify(state_update.to_dict()), 200
+    req_json = request.get_json()
+    ignore_key = ['id', 'created_at', 'updated_at']
+
+    for key, value in req_json.items():
+        if key not in ignore_key:
+            setattr(state, key, value)
+
+    state.save()
+    return jsonify(state.to_dict()), 200
