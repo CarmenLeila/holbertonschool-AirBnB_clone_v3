@@ -7,9 +7,9 @@ from api.v1.views import app_views
 from models import storage
 from flask import jsonify, abort, request, make_response
 
+
 # GET all amenities
 # ============================================================================
-
 
 @app_views.route('/amenities',
                  methods=["GET"], strict_slashes=False)
@@ -34,9 +34,9 @@ def amenity_object(amenity_id):
         abort(404)
     return jsonify(amenity.to_dict())
 
+
 # DELETE an amenity
 # ============================================================================
-
 
 @app_views.route('/amenities/<amenity_id>',
                  methods=["DELETE"], strict_slashes=False)
