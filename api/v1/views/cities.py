@@ -12,7 +12,8 @@ from flask import jsonify, abort, request
 # GET all cities
 # ============================================================================
 
-@app_views.route('/api/v1/states/<state_id>/cities', methods=["GET"], strict_slashes=False)
+@app_views.route('/api/v1/states/<state_id>/cities',
+                 methods=["GET"], strict_slashes=False)
 def all_cities(state_id):
     """gets the list of all cities for a state"""
     state = storage.get(State, state_id)
