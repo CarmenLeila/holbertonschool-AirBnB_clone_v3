@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""It’s time to start your API"""
+"""It’s time to start our API"""
 
 
 from api.v1.views import app_views
@@ -15,5 +15,19 @@ from models.user import User
 
 @app_views.route('/status')
 def status():
-    """route that returns a JSON 'status': 'OK'"""
+    """route that returns a JSON"""
     return jsonify({'status': 'OK'})
+
+
+@app_views.route('/stats', methods=['GET'])
+def stats():
+    """Retrieves the number of each objects by type"""
+    count_dict = {
+        "amenities": storage.count(Amenity),
+        "cities": storage.count(City),
+        "places": storage.count(Place),
+        "reviews": storage.count(Review),
+        "states": storage.count(State),
+        "users": storage.count(User)
+    }
+    return jsonify(count_dict)
