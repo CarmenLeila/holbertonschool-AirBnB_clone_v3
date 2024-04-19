@@ -2,7 +2,6 @@
 """It’s time to start your API"""
 
 
-
 from api.v1.views import app_views
 from flask import Flask, jsonify
 from models import storage
@@ -18,6 +17,7 @@ from models.user import User
 def status():
     """route that returns a JSON"""
     return jsonify({'status': 'OK'})
+
 
 @app_views.route('/stats', methods=['GET'])
 def stats():

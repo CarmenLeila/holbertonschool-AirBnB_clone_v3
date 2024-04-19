@@ -20,7 +20,6 @@ def all_states():
     return jsonify(state_list)
 
 
-
 # GET one state
 # ============================================================================
 
@@ -48,6 +47,7 @@ def delete_state(state_id):
     storage.save()
     return jsonify({}), 200
 
+
 # CREATE a state
 # ============================================================================
 
@@ -63,7 +63,6 @@ def create_state():
     state = State(**request_data)
     state.save()
     return jsonify(state.to_dict()), 201
-
 
 
 # UPDATE a state
