@@ -13,13 +13,13 @@ from models.state import State
 from models.user import User
 
 
-@app_views.route('/status', strict_slaches=False)
+@app_views.route('/status', methods=['GET'], strict_slaches=False)
 def status():
     """route that returns a JSON"""
     return jsonify({'status': 'OK'})
 
 
-@app_views.route('/api/v1/stats', methods=['GET'])
+@app_views.route('/stats', methods=['GET'], strict_slaches=False)
 def stats():
     """Retrieves the number of each objects by type"""
     count_dict = {

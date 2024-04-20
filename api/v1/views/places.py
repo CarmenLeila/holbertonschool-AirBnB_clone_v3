@@ -15,15 +15,16 @@ from models.user import User
 
 @app_views.route('/cities/<city_id>/places',
                  methods=["GET"], strict_slashes=False)
-def all_places(city_id):
+def get_all_places(city_id):
     """get the list of all places"""
     city = storage.get(City, city_id)
+
     if city is None:
         abort(404)
-    place_list = []
-    for place in city.place:
-        place_list.append(place.to_dict())
-    return jsonify(place_list)
+
+    list_places = [place.to_dict() for place in city.places]
+
+    return jsonify(list_places)
 
 
 # GET a place
@@ -31,11 +32,13 @@ def all_places(city_id):
 
 @app_views.route('/places/<place_id>',
                  methods=["GET"], strict_slashes=False)
-def place_object(place_id):
+def get_place(place_id):
     """get a place object"""
     place = storage.get(Place, place_id)
+
     if place is None:
         abort(404)
+
     return jsonify(place.to_dict())
 
 
@@ -47,8 +50,10 @@ def place_object(place_id):
 def delete_place(place_id):
     """delete a place object"""
     place = storage.get(Place, place_id)
+
     if place is None:
         abort(404)
+
     storage.delete(place)
     storage.save()
     return jsonify({}), 200
@@ -64,17 +69,27 @@ def create_place(city_id):
     city = storage.get(City, city_id)
     if city is None:
         abort(404)
-    request_data = request.get_json()
-    if request_data is None:
-        abort(400, 'Not a JSON')
-    if 'user_id' not in request_data:
-        abort(400, 'Missing user_id')
-    if 'name' not in request_data:
-        abort(400, 'Missing name')
-    user = storage.get(User, request_data['user_id'])
+
+    try:
+        data = request.get_json()
+    except Exception as error:
+        abort(400, description="Not a JSON: {}".format(str(error)))
+
+    if data is None:
+        abort(400, description="Not a JSON")
+
+    if "user_id" not in data:
+        abort(400, description="Missing user_id")
+
+    user = storage.get(User, data["user_id"])
     if user is None:
         abort(404)
-    place = Place(**request_data)
+
+    if "name" not in data:
+        abort(400, description="Missing name")
+
+    data["city_id"] = city_id
+    place = Place(**data)
     place.save()
     return jsonify(place.to_dict()), 201
 
@@ -87,13 +102,21 @@ def create_place(city_id):
 def update_place(place_id):
     """updates a place by ID"""
     place_update = storage.get(Place, place_id)
+
     if place_update is None:
         abort(404)
-    request_data = request.get_json()
-    if request_data is None:
-        abort(400, 'Not a JSON')
-    for key, value in request_data.items():
-        if key not in ['id', 'user_id', 'city_id', 'created_at', 'updated_at']:
+
+    try:
+        data = request.get_json()
+    except Exception as error:
+        abort(400, description="Not a JSON")
+
+    if "id" in data and data["id"] != place_id:
+        abort(404, description="error: Not found")
+
+    for key, value in data.items():
+        if key not in ["id", "user_id", "created_at", "updated_at"]:
             setattr(place_update, key, value)
+
     place_update.save()
     return jsonify(place_update.to_dict()), 200
