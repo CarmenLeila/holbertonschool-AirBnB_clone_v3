@@ -16,13 +16,13 @@ from models.user import User
 @app_views.route('/status', methods=['GET'], strict_slaches=False)
 def status():
     """route that returns a JSON"""
-    return jsonify({'status': 'OK'})
+    return jsonify({"status": "OK"})
 
 
 @app_views.route('/stats', methods=['GET'], strict_slaches=False)
 def stats():
     """Retrieves the number of each objects by type"""
-    count_dict = {
+    object_count = {
         "amenities": storage.count(Amenity),
         "cities": storage.count(City),
         "places": storage.count(Place),
@@ -30,4 +30,4 @@ def stats():
         "states": storage.count(State),
         "users": storage.count(User)
     }
-    return jsonify(count_dict)
+    return jsonify(object_count)
